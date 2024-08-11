@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+</head>
+<body>
+    <h1>Financial Dashboard</h1>
+    <form method="post" enctype="multipart/form-data" action="{{ url_for('upload') }}">
+        <label for="file">Upload Bank Data CSV:</label>
+        <input type="file" name="file" id="file" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <form method="post" action="{{ url_for('home') }}">
+        <label for="query">Ask a question:</label>
+        <input type="text" name="query" id="query">
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Response:</h2>
+    <p>{{ response }}</p>
+</body>
+</html>
+
