@@ -4,41 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financial Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-        h1 {
-            font-size: 2em;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 300px;
-            padding: 10px;
-            margin-right: 10px;
-        }
-        input[type="submit"] {
-            padding: 10px 20px;
-        }
-        .response {
-            font-size: 1.2em;
-            color: #333;
-        }
-    </style>
 </head>
 <body>
     <h1>Financial Dashboard</h1>
-    <form action="/nl_query_ui" method="post">
+    <form action="/nl_query_ui" method="post" enctype="multipart/form-data">
         <label for="query">Ask a question:</label>
-        <input type="text" name="query" id="query" required>
+        <input type="text" id="query" name="query">
+        <br><br>
+        <label for="csv_file">Upload CSV file:</label>
+        <input type="file" id="csv_file" name="csv_file">
+        <br><br>
         <input type="submit" value="Submit">
     </form>
-    <div class="response">
-        <strong>Response:</strong>
-        <p>{{ response }}</p>
-    </div>
+    <h2>Response:</h2>
+    <p>{{ response }}</p>
 </body>
 </html>
