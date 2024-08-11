@@ -8,7 +8,7 @@ import sqlite3
 app = Flask(__name__)
 
 # Configure the Gemini API
-genai.configure(api_key="YOUR_API_KEY")
+genai.configure(api_key="YOUR_API_KEY_HERE")
 
 # Setup the generation config
 generation_config = {
