@@ -15,7 +15,7 @@
 
     <form method="post" action="{{ url_for('home') }}">
         <label for="query">Ask a question:</label>
-        <input type="text" name="query" id="query">
+        <input type="text" name="query" id="query" placeholder="e.g., How much did I spend on groceries last month?">
         <button type="submit">Submit</button>
     </form>
 
@@ -23,4 +23,3 @@
     <p>{{ response }}</p>
 </body>
 </html>
-

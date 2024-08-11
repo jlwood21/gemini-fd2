@@ -1,60 +1,46 @@
-from app import db, Transaction, app
-from datetime import datetime
+import csv
+from faker import Faker
 import random
+from datetime import datetime, timedelta
 
-def generate_dummy_data():
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        
-        # Define categories and some example descriptions
-        categories = [
-            'Food Delivery', 'Groceries', 'Healthcare', 'Entertainment', 'Transport', 
-            'Utilities', 'Rent', 'Savings', 'Dining', 'Shopping', 'Travel', 'Gifts'
-        ]
-        descriptions = {
-            'Food Delivery': ['Uber Eats', 'DoorDash', 'Grubhub'],
-            'Groceries': ['Walmart', 'Kroger', 'Whole Foods', 'Trader Joe\'s'],
-            'Healthcare': ['CVS Pharmacy', 'Walgreens', 'Doctor Visit', 'Dental'],
-            'Entertainment': ['Netflix', 'Spotify', 'Movie Theater', 'Football Match', 'Concert'],
-            'Transport': ['Uber', 'Lyft', 'Gas Station', 'Car Rental'],
-            'Utilities': ['Electricity Bill', 'Water Bill', 'Internet Bill', 'Phone Bill'],
-            'Rent': ['Monthly Rent', 'Home Insurance'],
-            'Savings': ['Bank Deposit', 'Investment', 'Retirement Fund'],
-            'Dining': ['Restaurant', 'Cafe', 'Bar'],
-            'Shopping': ['Clothing Store', 'Electronics Store', 'Online Purchase'],
-            'Travel': ['Airline', 'Hotel', 'Rental Car'],
-            'Gifts': ['Gift Shop', 'Online Gifts']
-        }
+# Initialize Faker
+fake = Faker()
 
-        # Generate a wide variety of transactions
-        for i in range(300):
-            category = random.choice(categories)
-            description = random.choice(descriptions[category])
-            transaction = Transaction(
-                user_id=1,
-                date=datetime(2023, random.randint(1, 12), random.randint(1, 28)),
-                amount=random.uniform(-500, 1500),
-                category=category,
-                description=description
-            )
-            db.session.add(transaction)
+# Define the number of rows you want to generate
+num_rows = 10000  # You can increase this number as needed
 
-        # Add specific transactions for football tickets and other notable transactions
-        notable_transactions = [
-            Transaction(user_id=1, date=datetime(2023, 5, 15), amount=-150.0, category='Entertainment', description='Football Match - Wigan Ath'),
-            Transaction(user_id=1, date=datetime(2023, 6, 20), amount=-200.0, category='Entertainment', description='Football Match - MAN United'),
-            Transaction(user_id=1, date=datetime(2023, 9, 10), amount=-120.0, category='Entertainment', description='Football Match - Arsenal'),
-            Transaction(user_id=1, date=datetime(2023, 10, 12), amount=-100.0, category='Dining', description='Restaurant - Italian Bistro'),
-            Transaction(user_id=1, date=datetime(2023, 11, 5), amount=-300.0, category='Travel', description='Airline - London to New York')
-        ]
-        
-        for transaction in notable_transactions:
-            db.session.add(transaction)
+# Define the CSV file name
+csv_file = 'dummy_data.csv'
 
-        db.session.commit()
-        print("Extensive dummy data generated and saved to database")
+# Define the categories and corresponding keywords (for more realistic data)
+categories = {
+    'Groceries': ['Supermarket', 'Grocery Store', 'Market'],
+    'Rent': ['Rent', 'Apartment', 'Housing'],
+    'Utilities': ['Electricity', 'Water', 'Gas', 'Internet'],
+    'Transport': ['Taxi', 'Bus', 'Train', 'Uber'],
+    'Entertainment': ['Cinema', 'Concert', 'Theater', 'Netflix'],
+    'Healthcare': ['Pharmacy', 'Doctor', 'Hospital'],
+    'Food Delivery': ['UberEats', 'Deliveroo', 'GrubHub'],
+    'Savings': ['Savings Account', 'Deposit'],
+    'Clothing': ['Clothing Store', 'Fashion', 'Apparel'],
+    'Restaurants': ['Restaurant', 'Cafe', 'Diner']
+}
 
-if __name__ == '__main__':
-    generate_dummy_data()
+# Function to generate random transactions
+def generate_transaction():
+    category = random.choice(list(categories.keys()))
+    description = random.choice(categories[category])
+    amount = round(random.uniform(5.00, 200.00), 2)  # Random amount between 5 and 200
+    date = fake.date_between(start_date='-2y', end_date='today')  # Random date in the last 2 years
+    user_id = random.randint(1, 10)  # Assume 10 different users
+    return [user_id, date, amount, category, description]
 
+# Write to the CSV file
+with open(csv_file, 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['User ID', 'Date', 'Amount', 'Category', 'Description'])  # CSV header
+
+    for _ in range(num_rows):
+        writer.writerow(generate_transaction())
+
+print(f'Dummy data generated and saved to {csv_file}')
