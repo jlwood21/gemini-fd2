@@ -7,16 +7,23 @@
 </head>
 <body>
     <h1>Financial Dashboard</h1>
+
+    <!-- File upload and query form -->
     <form action="/nl_query_ui" method="post" enctype="multipart/form-data">
-        <label for="query">Ask a question:</label>
-        <input type="text" id="query" name="query">
+        <label for="query">Ask a financial question:</label>
+        <input type="text" id="query" name="query" required>
         <br><br>
-        <label for="csv_file">Upload CSV file:</label>
-        <input type="file" id="csv_file" name="csv_file">
+        <label for="csv_file">Upload your financial CSV file:</label>
+        <input type="file" id="csv_file" name="csv_file" required>
         <br><br>
         <input type="submit" value="Submit">
     </form>
+
+    <!-- Display the response -->
     <h2>Response:</h2>
     <p>{{ response }}</p>
+
+    <!-- Link to view past queries and responses -->
+    <a href="/history">View Past Queries and Responses</a>
 </body>
 </html>
