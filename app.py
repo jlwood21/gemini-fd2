@@ -8,7 +8,7 @@ import sqlite3
 app = Flask(__name__)
 
 # Configure the Gemini API
-genai.configure(api_key="YOUR_API_KEY_HERE")
+genai.configure(api_key="AIzaSyDMFDN6hqtDN9z8cLFGM7PzC6Z1Rx8Hn3Q")
 
 # Setup the generation config
 generation_config = {
@@ -32,18 +32,22 @@ def init_db():
 
 init_db()
 
-# Process CSV file and summarize data
-def process_csv(filepath, query):
-    df = pd.read_csv(filepath)
+# Parse and structure the CSV data
+def parse_csv(file):
+    df = pd.read_csv(file)
+    return df
 
-    if "spending" in query.lower() or "expenses" in query.lower():
-        summary = df.groupby("Category")["Amount"].sum().reset_index()
-        summary_text = "Summary of your spending:\n"
-        for index, row in summary.iterrows():
-            summary_text += f"- {row['Category']}: ${row['Amount']:.2f}\n"
-        return summary_text
+# Generate the query with context
+def generate_query_with_context(df, user_query):
+    context_data = df.to_dict(orient='records')
+    prompt = f"{user_query}\n\nHere is your financial data:\n{context_data}\n"
+    return prompt
 
-    return "No relevant data found."
+# Get a response from the Gemini API
+def get_ai_response(api_key, prompt):
+    genai.configure(api_key=api_key)
+    response = genai.generate_content(prompt=prompt)
+    return response['candidates'][0]['content']['parts'][0]['text']
 
 # Save query and response to database
 def save_response(query, response):
@@ -54,51 +58,29 @@ def save_response(query, response):
     conn.close()
 
 # Route to handle the root URL
-@app.route("/", methods=["GET"])
-def home():
-    return render_template("index.html")
-
-# Route to handle the financial query
-@app.route("/nl_query_ui", methods=["GET", "POST"])
-def nl_query_ui():
+@app.route("/", methods=["GET", "POST"])
+def index():
     response_text = ""
 
     if request.method == "POST":
         try:
-            query = request.form["query"]
-            csv_file = request.files["csv_file"]
+            user_query = request.form['question']
+            csv_file = request.files['file']
 
             if csv_file:
-                filepath = os.path.join("uploads", csv_file.filename)
-                csv_file.save(filepath)
+                # Parse the CSV file
+                df = parse_csv(csv_file)
+                
+                # Generate the prompt with context
+                prompt = generate_query_with_context(df, user_query)
+                
+                # Get AI response
+                api_key = "AIzaSyDMFDN6hqtDN9z8cLFGM7PzC6Z1Rx8Hn3Q"  # Use your actual API key
+                response_text = get_ai_response(api_key, prompt)
+                
+                # Save the response to the database
+                save_response(user_query, response_text)
 
-                csv_summary = process_csv(filepath, query)
-                enhanced_query = f"The user uploaded financial data. {csv_summary} Based on this, the user asks: '{query}'. Please provide insights."
-
-                history = [
-                    {
-                        "role": "user",
-                        "parts": [
-                            "You are a financial assistant. The user will ask questions about their spending habits based on the data provided. Analyze the data and provide accurate answers."
-                        ],
-                    },
-                    {
-                        "role": "model",
-                        "parts": [
-                            "I'm ready to assist with your financial analysis!"
-                        ],
-                    },
-                ]
-
-                chat_session = genai.GenerativeModel(
-                    model_name="gemini-1.5-flash",
-                    generation_config=generation_config,
-                ).start_chat(history=history)
-
-                response = chat_session.send_message(enhanced_query)
-                response_text = response.text
-
-                save_response(query, response_text)
         except Exception as e:
             response_text = f"Error processing request: {e}"
 
