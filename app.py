@@ -53,6 +53,11 @@ def save_response(query, response):
     conn.commit()
     conn.close()
 
+# Route to handle the root URL
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
 # Route to handle the financial query
 @app.route("/nl_query_ui", methods=["GET", "POST"])
 def nl_query_ui():
